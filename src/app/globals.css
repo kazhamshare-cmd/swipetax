@@ -1,0 +1,166 @@
+@import "tailwindcss";
+
+:root {
+  /* SwipeTax プロフェッショナルカラー */
+  --color-primary: #2563EB;        /* メインブルー */
+  --color-primary-light: #DBEAFE;
+  --color-primary-dark: #1D4ED8;
+  --color-secondary: #059669;      /* サクセスグリーン */
+  --color-secondary-light: #D1FAE5;
+  --color-accent: #0891B2;         /* シアン */
+  --color-accent-light: #CFFAFE;
+  --color-warning: #F59E0B;        /* 警告イエロー */
+  --color-warning-light: #FEF3C7;
+  --color-danger: #DC2626;         /* 危険レッド */
+  --color-danger-light: #FEE2E2;
+  --color-slate: #64748B;          /* スレートグレー */
+  --color-slate-light: #F1F5F9;
+
+  --background: #F8FAFC;
+  --foreground: #1E293B;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+  /* iOS/Android セーフエリア対応 */
+  padding-top: max(env(safe-area-inset-top, 0px), 24px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* セーフエリアを考慮したメインコンテンツ */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* プロフェッショナルボタンスタイル */
+.btn-stationery {
+  @apply px-5 py-2.5 rounded-xl font-bold transition-all duration-200 shadow-md;
+  @apply hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm;
+  @apply border-2 border-b-4 active:border-b-2;
+}
+
+.btn-primary {
+  @apply bg-[#2563EB] text-white border-[#1D4ED8];
+  @apply hover:bg-[#1D4ED8];
+}
+
+.btn-secondary {
+  @apply bg-[#059669] text-white border-[#047857];
+  @apply hover:bg-[#047857];
+}
+
+.btn-accent {
+  @apply bg-[#0891B2] text-white border-[#0E7490];
+  @apply hover:bg-[#0E7490];
+}
+
+.btn-warning {
+  @apply bg-[#F59E0B] text-white border-[#D97706];
+  @apply hover:bg-[#D97706];
+}
+
+.btn-danger {
+  @apply bg-[#DC2626] text-white border-[#B91C1C];
+  @apply hover:bg-[#B91C1C];
+}
+
+.btn-outline {
+  @apply bg-white text-[#2563EB] border-[#2563EB];
+  @apply hover:bg-[#DBEAFE];
+}
+
+/* カード風スタイル */
+.card-stationery {
+  @apply bg-white rounded-2xl shadow-md border border-gray-200;
+  @apply transition-all duration-200 hover:shadow-lg;
+}
+
+/* プロフェッショナルカード */
+.card-professional {
+  @apply bg-white rounded-2xl shadow-sm border border-gray-100;
+  @apply transition-all duration-200 hover:shadow-md;
+}
+
+/* 入力フィールド */
+.input-stationery {
+  @apply px-4 py-3 rounded-xl border-2 border-gray-200 outline-none;
+  @apply focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/20;
+  @apply transition-all duration-200;
+  background: #FFFFFF;
+}
+
+/* ステータスバッジ */
+.badge-pending {
+  @apply bg-[#FEF3C7] text-[#B45309] px-3 py-1 rounded-full text-xs font-bold;
+}
+
+.badge-approved {
+  @apply bg-[#D1FAE5] text-[#047857] px-3 py-1 rounded-full text-xs font-bold;
+}
+
+.badge-held {
+  @apply bg-[#DBEAFE] text-[#1D4ED8] px-3 py-1 rounded-full text-xs font-bold;
+}
+
+.badge-excluded {
+  @apply bg-[#FEE2E2] text-[#B91C1C] px-3 py-1 rounded-full text-xs font-bold;
+}
+
+/* スワイプインジケーター */
+.swipe-indicator-right {
+  @apply bg-[#059669] text-white;
+}
+
+.swipe-indicator-left {
+  @apply bg-[#2563EB] text-white;
+}
+
+.swipe-indicator-up {
+  @apply bg-[#F59E0B] text-white;
+}
+
+.swipe-indicator-down {
+  @apply bg-[#DC2626] text-white;
+}
+
+/* アニメーション */
+@keyframes gentle-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-gentle-bounce {
+  animation: gentle-bounce 2s ease-in-out infinite;
+}
+
+@keyframes slide-up {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
+}
+
+/* グラデーション背景 */
+.gradient-primary {
+  background: linear-gradient(135deg, #2563EB 0%, #0891B2 100%);
+}
+
+.gradient-success {
+  background: linear-gradient(135deg, #059669 0%, #0891B2 100%);
+}
