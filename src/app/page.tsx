@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { LandingPage } from './LandingPage';
-import HomeClient from './HomeClient';
+import { AppTopPage } from './AppTopPage';
 
 export default function Home() {
   const [isNative, setIsNative] = useState<boolean | null>(null);
@@ -24,6 +24,6 @@ export default function Home() {
     );
   }
 
-  // ネイティブアプリ → アプリ画面、Web → ランディングページ
-  return isNative ? <HomeClient /> : <LandingPage />;
+  // ネイティブアプリ → シンプルなログイン画面、Web → ランディングページ
+  return isNative ? <AppTopPage /> : <LandingPage />;
 }
