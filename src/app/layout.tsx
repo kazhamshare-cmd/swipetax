@@ -16,6 +16,18 @@ export const metadata: Metadata = {
     creator: "SwipeTax",
     publisher: "B19 Co., Ltd.",
     manifest: "/manifest.json",
+    icons: {
+        icon: [
+            { url: "/favicon.ico", sizes: "32x32" },
+            { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+            { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+            { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+            { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+        ],
+        apple: [
+            { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+        ],
+    },
     appleWebApp: {
         capable: true,
         statusBarStyle: "default",
@@ -60,7 +72,7 @@ export default async function RootLayout({
     return (
         <html lang={locale === 'ja' ? 'ja' : 'en'}>
             <head>
-                <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+                <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
                 <meta name="apple-mobile-web-app-capable" content="yes" />
             </head>
             <body className="antialiased">
