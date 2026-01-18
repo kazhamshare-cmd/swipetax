@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwipeTax Icon Generator</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 { color: #333; }
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .icon-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .icon-card canvas {
+      border-radius: 20%;
+      margin-bottom: 10px;
+    }
+    .icon-card h3 { margin: 10px 0 5px; color: #333; }
+    .icon-card p { margin: 0 0 15px; color: #666; font-size: 14px; }
+    button {
+      background: linear-gradient(135deg, #3B82F6, #10B981);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    button:hover { opacity: 0.9; }
+    .instructions {
+      background: #e8f4fd;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .instructions h2 { color: #1e40af; margin-top: 0; }
+    .instructions ul { color: #374151; }
+  </style>
+</head>
+<body>
+  <h1>SwipeTax App Icon Generator</h1>
+
+  <div class="instructions">
+    <h2>使い方</h2>
+    <ul>
+      <li><strong>iOS App Store</strong>: 1024x1024をダウンロード → Xcode の Assets.xcassets にドラッグ</li>
+      <li><strong>Google Play</strong>: 512x512をダウンロード → Play Console にアップロード</li>
+      <li><strong>PWA</strong>: 192x192, 512x512をダウンロード → public/ に配置</li>
+      <li><strong>Apple Touch Icon</strong>: 180x180をダウンロード → public/apple-touch-icon.png として保存</li>
+    </ul>
+  </div>
+
+  <div class="icon-grid" id="iconGrid"></div>
+
+  <script>
+    const sizes = [
+      { size: 1024, name: 'iOS App Store', desc: 'Required for App Store submission' },
+      { size: 512, name: 'Google Play / PWA', desc: 'icon-512.png' },
+      { size: 192, name: 'PWA', desc: 'icon-192.png' },
+      { size: 180, name: 'Apple Touch Icon', desc: 'apple-touch-icon.png' },
+      { size: 152, name: 'iPad', desc: 'iPad app icon' },
+      { size: 120, name: 'iPhone', desc: 'iPhone app icon' },
+      { size: 76, name: 'iPad Small', desc: 'iPad small icon' },
+      { size: 60, name: 'iPhone Small', desc: 'iPhone small icon' },
+    ];
+
+    function drawIcon(ctx, size) {
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#3B82F6');
+      gradient.addColorStop(1, '#10B981');
+
+      // Rounded rectangle background
+      const radius = size * 0.22;
+      ctx.beginPath();
+      ctx.moveTo(radius, 0);
+      ctx.lineTo(size - radius, 0);
+      ctx.quadraticCurveTo(size, 0, size, radius);
+      ctx.lineTo(size, size - radius);
+      ctx.quadraticCurveTo(size, size, size - radius, size);
+      ctx.lineTo(radius, size);
+      ctx.quadraticCurveTo(0, size, 0, size - radius);
+      ctx.lineTo(0, radius);
+      ctx.quadraticCurveTo(0, 0, radius, 0);
+      ctx.closePath();
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      // Scale factor
+      const s = size / 32;
+
+      ctx.strokeStyle = 'white';
+      ctx.fillStyle = 'white';
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      // Document lines
+      ctx.globalAlpha = 0.9;
+      roundRect(ctx, 8*s, 7*s, 12*s, 2*s, 1*s);
+      ctx.fill();
+
+      ctx.globalAlpha = 0.7;
+      roundRect(ctx, 8*s, 12*s, 10*s, 2*s, 1*s);
+      ctx.fill();
+
+      ctx.globalAlpha = 0.5;
+      roundRect(ctx, 8*s, 17*s, 8*s, 2*s, 1*s);
+      ctx.fill();
+
+      ctx.globalAlpha = 1;
+
+      // Swipe arrow
+      ctx.lineWidth = 2.5 * s;
+      ctx.beginPath();
+      ctx.moveTo(18*s, 22*s);
+      ctx.lineTo(24*s, 22*s);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(22*s, 19*s);
+      ctx.lineTo(25*s, 22*s);
+      ctx.lineTo(22*s, 25*s);
+      ctx.stroke();
+
+      // Checkmark
+      ctx.beginPath();
+      ctx.moveTo(6*s, 24*s);
+      ctx.lineTo(9*s, 27*s);
+      ctx.lineTo(14*s, 20*s);
+      ctx.stroke();
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function downloadIcon(canvas, size) {
+      const link = document.createElement('a');
+      link.download = `swipetax-icon-${size}x${size}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    // Generate icons
+    const grid = document.getElementById('iconGrid');
+    sizes.forEach(({ size, name, desc }) => {
+      const card = document.createElement('div');
+      card.className = 'icon-card';
+
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const displaySize = Math.min(size, 150);
+      canvas.style.width = displaySize + 'px';
+      canvas.style.height = displaySize + 'px';
+
+      const ctx = canvas.getContext('2d');
+      drawIcon(ctx, size);
+
+      card.appendChild(canvas);
+      card.innerHTML += `<h3>${name}</h3><p>${size}x${size} - ${desc}</p>`;
+
+      const btn = document.createElement('button');
+      btn.textContent = 'Download PNG';
+      btn.onclick = () => downloadIcon(canvas, size);
+      card.appendChild(btn);
+
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>
