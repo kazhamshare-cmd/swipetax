@@ -251,11 +251,11 @@ export default function SubscriptionPage() {
                 {/* Legal Links */}
                 <div className="text-center text-sm text-gray-500 space-y-2">
                     <div className="flex items-center justify-center gap-4">
-                        <a href="/terms" className="text-blue-600 underline flex items-center gap-1">
+                        <a href="https://b19.co.jp/terms/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline flex items-center gap-1">
                             利用規約
                             <ExternalLink className="w-3 h-3" />
                         </a>
-                        <a href="/privacy" className="text-blue-600 underline flex items-center gap-1">
+                        <a href="https://b19.co.jp/privacy/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline flex items-center gap-1">
                             プライバシーポリシー
                             <ExternalLink className="w-3 h-3" />
                         </a>

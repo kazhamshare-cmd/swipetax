@@ -229,9 +229,9 @@ export default function SignupPage() {
                     {/* 利用規約 */}
                     <p className="mt-4 text-center text-xs text-gray-400">
                         登録することで、
-                        <Link href="/terms" className="text-blue-500 hover:underline">利用規約</Link>
+                        <a href="https://b19.co.jp/terms/" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">利用規約</a>
                         と
-                        <Link href="/privacy" className="text-blue-500 hover:underline">プライバシーポリシー</Link>
+                        <a href="https://b19.co.jp/privacy/" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">プライバシーポリシー</a>
                         に同意したものとみなされます
                     </p>
                 </div>

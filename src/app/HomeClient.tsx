@@ -975,10 +975,10 @@ export default function HomeClient() {
 
         {/* Footer */}
         <footer className="text-center text-gray-500 text-sm py-8 border-t border-gray-200">
-          <p>© 2025 SwipeTax</p>
+          <p>© 2026 SwipeTax</p>
           <div className="flex justify-center gap-4 mt-2">
-            <Link href="/privacy" className="hover:text-gray-700">プライバシーポリシー</Link>
-            <Link href="/terms" className="hover:text-gray-700">利用規約</Link>
+            <a href="https://b19.co.jp/privacy/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-700">プライバシーポリシー</a>
+            <a href="https://b19.co.jp/terms/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-700">利用規約</a>
           </div>
         </footer>
       </div>

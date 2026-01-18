@@ -297,9 +297,9 @@ export default function LoginPage() {
                             {/* 利用規約 */}
                             <p className="mt-6 text-center text-xs text-gray-400">
                                 ログインすることで
-                                <Link href="/terms" className="underline hover:text-gray-600">利用規約</Link>
+                                <a href="https://b19.co.jp/terms/" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">利用規約</a>
                                 と
-                                <Link href="/privacy" className="underline hover:text-gray-600">プライバシーポリシー</Link>
+                                <a href="https://b19.co.jp/privacy/" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">プライバシーポリシー</a>
                                 に同意したものとみなされます
                             </p>
                         </div>

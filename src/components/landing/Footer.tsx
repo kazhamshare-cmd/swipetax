@@ -55,10 +55,10 @@ export function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-4">会社情報</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="hover:text-white transition-colors">運営会社</a></li>
-              <li><Link href="/terms" className="hover:text-white transition-colors">利用規約</Link></li>
-              <li><Link href="/privacy" className="hover:text-white transition-colors">プライバシーポリシー</Link></li>
-              <li><a href="mailto:support@swipetax.app" className="hover:text-white transition-colors">お問い合わせ</a></li>
+              <li><a href="https://b19.co.jp/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">運営会社</a></li>
+              <li><a href="https://b19.co.jp/terms/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">利用規約</a></li>
+              <li><a href="https://b19.co.jp/privacy/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">プライバシーポリシー</a></li>
+              <li><a href="https://b19.co.jp/contact/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">お問い合わせ</a></li>
             </ul>
           </div>
         </div>
