@@ -116,11 +116,37 @@ miscellaneous（雑費）`;
         case 'tax_return':
             return `${basePrompt}
 
-確定申告書から以下を抽出します：
+確定申告書および青色申告決算書から以下を抽出します：
+
+【基本情報】
+- 納税者氏名（フルネーム）
+- 住所
+- 屋号（店名・事業名）
+- 業種（小売業、飲食業、サービス業など）
 - 申告年度
 - 申告種別（白色/青色簡易/青色正規）
-- 事業所得、給与所得、その他所得
-- 各種控除額（医療費、社会保険料、生命保険料、基礎控除など）
+
+【収入・所得】
+- 売上高（収入金額）
+- 事業所得、給与所得、雑所得
+
+【減価償却資産】（青色申告決算書の減価償却費の計算欄から）
+- 資産名、取得年月日、取得価額
+- 耐用年数、償却方法（定額法/定率法）
+- 本年分の償却費、期末簿価
+※ 複数の資産がある場合はすべて抽出
+
+【期末資産・負債】（貸借対照表から）
+- 現金、預金
+- 売掛金、棚卸資産（商品・在庫）
+- 買掛金、未払金、借入金
+- 元入金
+※ 青色申告決算書の4ページ目（貸借対照表）から抽出
+
+【各種控除】
+- 医療費、社会保険料、生命保険料、基礎控除など
+
+【税額】
 - 課税所得、所得税額
 - 源泉徴収税額、最終納付/還付額
 
@@ -201,16 +227,54 @@ function getExtractionPrompt(documentType: DocumentType): string {
 }`;
 
         case 'tax_return':
-            return `この確定申告書の情報を抽出してください。
+            return `この確定申告書（および青色申告決算書）の情報を抽出してください。
 
 {
   "success": true,
   "fiscalYear": 年度（数値）,
   "filingType": "white|blue_simple|blue_regular",
+
+  "taxpayerName": "納税者氏名",
+  "taxpayerAddress": "住所",
+  "businessName": "屋号またはnull",
+  "businessType": "業種（小売業、飲食業など）またはnull",
+
+  "grossRevenue": 売上高（収入金額）またはnull,
   "businessIncome": 事業所得,
   "salaryIncome": 給与所得またはnull,
   "miscIncome": 雑所得またはnull,
   "totalExpenses": 必要経費合計またはnull,
+
+  "depreciationAssets": [
+    {
+      "name": "資産名（例：軽トラック、レジスター）",
+      "acquisitionDate": "YYYY-MM-DD（取得年月日）またはnull",
+      "acquisitionCost": 取得価額,
+      "usefulLife": 耐用年数またはnull,
+      "depreciationMethod": "straight_line|declining_balance|null",
+      "currentYearDepreciation": 本年分償却費またはnull,
+      "accumulatedDepreciation": 累計償却額またはnull,
+      "bookValue": 期末簿価またはnull
+    }
+  ],
+
+  "balanceSheet": {
+    "cash": 現金またはnull,
+    "deposits": 預金またはnull,
+    "accountsReceivable": 売掛金またはnull,
+    "inventory": 棚卸資産（商品・製品）またはnull,
+    "supplies": 貯蔵品またはnull,
+    "prepaidExpenses": 前払費用またはnull,
+    "land": 土地またはnull,
+    "buildings": 建物（期末簿価）またはnull,
+    "vehicles": 車両運搬具（期末簿価）またはnull,
+    "equipment": 工具器具備品（期末簿価）またはnull,
+    "accountsPayable": 買掛金またはnull,
+    "unpaidExpenses": 未払金またはnull,
+    "loans": 借入金またはnull,
+    "capital": 元入金またはnull
+  },
+
   "deductions": {
     "medical": 医療費控除,
     "social_insurance": 社会保険料控除,
@@ -227,7 +291,11 @@ function getExtractionPrompt(documentType: DocumentType): string {
   "withholdingTax": 源泉徴収税額,
   "finalTax": 納付額（還付の場合はマイナス）,
   "confidence": 0から100
-}`;
+}
+
+※ 減価償却資産がない場合は空配列[]を返してください
+※ 貸借対照表が見えない場合、balanceSheetの各項目はnullで返してください
+※ 複数ページにわたる場合、見えている範囲の情報のみ抽出してください`;
 
         case 'purchase_invoice':
             return `この仕入れ伝票/納品書の情報を抽出してください。

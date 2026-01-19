@@ -6,15 +6,18 @@ import { LandingPage } from './LandingPage';
 import { AppTopPage } from './AppTopPage';
 
 export default function Home() {
-  const [isNative, setIsNative] = useState<boolean | null>(null);
+  const [platform, setPlatform] = useState<string | null>(null);
 
   useEffect(() => {
-    // Capacitorでネイティブアプリかどうかを判定
-    setIsNative(Capacitor.isNativePlatform());
+    // Capacitorでプラットフォームを判定
+    const p = Capacitor.getPlatform();
+    console.log('[Home] Platform detected:', p);
+    console.log('[Home] isNativePlatform:', Capacitor.isNativePlatform());
+    setPlatform(p);
   }, []);
 
   // 判定中は何も表示しない（フラッシュ防止）
-  if (isNative === null) {
+  if (platform === null) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-emerald-50">
         <div className="animate-pulse">
@@ -24,6 +27,8 @@ export default function Home() {
     );
   }
 
-  // ネイティブアプリ → シンプルなログイン画面、Web → ランディングページ
-  return isNative ? <AppTopPage /> : <LandingPage />;
+  // ios/android → アプリ用画面、web → ランディングページ
+  const isNativeApp = platform === 'ios' || platform === 'android';
+
+  return isNativeApp ? <AppTopPage /> : <LandingPage />;
 }

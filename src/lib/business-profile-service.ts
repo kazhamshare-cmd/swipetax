@@ -55,6 +55,40 @@ export interface InsuranceEntry {
     amount: number;
 }
 
+// 減価償却資産（前年から引き継ぎ）
+export interface DepreciationAssetProfile {
+    id: string;
+    name: string;                          // 資産名
+    acquisitionDate?: string;              // 取得日 YYYY-MM-DD
+    acquisitionCost: number;               // 取得価額
+    usefulLife?: number;                   // 耐用年数
+    depreciationMethod?: 'straight_line' | 'declining_balance';
+    accumulatedDepreciation?: number;      // 累計償却額（前年末時点）
+    bookValue?: number;                    // 期首簿価
+}
+
+// 期首資産（前年の期末資産から引き継ぎ）
+export interface OpeningBalanceSheet {
+    // 流動資産
+    cash?: number;                         // 現金
+    deposits?: number;                     // 預金
+    accountsReceivable?: number;           // 売掛金
+    inventory?: number;                    // 棚卸資産（商品・製品）
+    supplies?: number;                     // 貯蔵品
+    prepaidExpenses?: number;              // 前払費用
+
+    // 固定資産（減価償却資産は別途管理）
+    land?: number;                         // 土地
+
+    // 負債
+    accountsPayable?: number;              // 買掛金
+    unpaidExpenses?: number;               // 未払金
+    loans?: number;                        // 借入金
+
+    // 元入金
+    capital?: number;                      // 元入金
+}
+
 // ビジネスプロフィールの型
 export interface BusinessProfile {
     // 基本情報
@@ -62,6 +96,11 @@ export interface BusinessProfile {
     filingType: FilingType;
     businessName?: string;
     fiscalYear: number;
+
+    // 納税者情報（前年申告書から読み取り）
+    taxpayerName?: string;                 // 納税者氏名
+    taxpayerAddress?: string;              // 住所
+    businessCategory?: string;             // 業種（小売業、飲食業など）
 
     // 年金受給者対応（Phase C）
     birthDate?: string;                    // 生年月日（65歳判定用）YYYY-MM-DD
@@ -80,6 +119,20 @@ export interface BusinessProfile {
 
     // 保険料控除（複数エントリー対応）
     insuranceEntries?: InsuranceEntry[];
+
+    // 減価償却資産（前年から引き継ぎ）
+    depreciationAssets?: DepreciationAssetProfile[];
+
+    // 期首資産（前年の期末資産から引き継ぎ）
+    openingBalance?: OpeningBalanceSheet;
+
+    // 前年申告データ（参照用）
+    previousYearData?: {
+        fiscalYear: number;
+        grossRevenue?: number;             // 前年売上高
+        businessIncome?: number;           // 前年事業所得
+        totalExpenses?: number;            // 前年経費合計
+    };
 
     // オンボーディング完了フラグ
     onboardingCompleted: boolean;

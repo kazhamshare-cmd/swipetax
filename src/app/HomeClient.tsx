@@ -35,10 +35,15 @@ import {
   Users,
   Store,
   Coins,
+  Landmark,
+  Package,
+  ClipboardCheck,
 } from 'lucide-react';
 import { getPendingTransactionCount, getTransactions } from '@/lib/transaction-service';
 import { Transaction, EXPENSE_CATEGORIES } from '@/lib/types';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { getLoans } from '@/lib/loan-service';
+import { getInventoryRecord, isInventoryComplete, getInventoryWarning } from '@/lib/inventory-service';
 
 // デモ用の取引データ
 const DEMO_TRANSACTIONS = [
@@ -240,7 +245,7 @@ export default function HomeClient() {
   const t = useTranslations();
   const router = useRouter();
   const { user, loading: authLoading, signOut } = useAuth();
-  const { isNative, hasAccess, isSubscribed, trialDaysLeft, isTrialActive, showPaywall } = useSubscription();
+  const { hasAccess, isSubscribed, trialDaysLeft, isTrialActive, startCheckout } = useSubscription();
 
   // Dashboard state
   const [pendingCount, setPendingCount] = useState<number>(0);
@@ -249,6 +254,11 @@ export default function HomeClient() {
   const [monthlyIncome, setMonthlyIncome] = useState<number>(0);
   const [loadingStats, setLoadingStats] = useState(true);
   const [checkingOnboarding, setCheckingOnboarding] = useState(true);
+
+  // Business management state
+  const [hasLoans, setHasLoans] = useState(false);
+  const [inventoryWarning, setInventoryWarning] = useState<string | null>(null);
+  const [inventoryComplete, setInventoryComplete] = useState(false);
 
   // Check onboarding status
   useEffect(() => {
@@ -317,6 +327,22 @@ export default function HomeClient() {
 
         setMonthlyExpenses(expenses);
         setMonthlyIncome(income);
+
+        // Load loans and inventory status
+        try {
+          const loans = await getLoans(user.uid, fiscalYear);
+          setHasLoans(loans.length > 0);
+        } catch {
+          // Ignore errors - feature may not be used
+        }
+
+        try {
+          const inventory = await getInventoryRecord(user.uid, fiscalYear);
+          setInventoryComplete(isInventoryComplete(inventory));
+          setInventoryWarning(getInventoryWarning(inventory, new Date()));
+        } catch {
+          // Ignore errors - feature may not be used
+        }
       } catch (error) {
         console.error('Error loading dashboard data:', error);
       } finally {
@@ -351,13 +377,18 @@ export default function HomeClient() {
         <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
             <h1 className="text-xl font-bold text-blue-600">SwipeTax</h1>
-            <div className="flex items-center gap-2">
-              <Link href="/settings" className="p-2 hover:bg-gray-100 rounded-lg">
+            <div className="flex items-center gap-1">
+              <Link
+                href="/settings"
+                className="p-2.5 hover:bg-gray-100 rounded-lg"
+                aria-label="設定"
+              >
                 <Settings className="w-5 h-5 text-gray-600" />
               </Link>
               <button
                 onClick={() => signOut()}
-                className="p-2 hover:bg-gray-100 rounded-lg"
+                className="p-2.5 hover:bg-gray-100 rounded-lg"
+                aria-label="ログアウト"
               >
                 <LogOut className="w-5 h-5 text-gray-600" />
               </button>
@@ -430,8 +461,8 @@ export default function HomeClient() {
             )}
           </div>
 
-          {/* App Subscription Banner (Native only) */}
-          {isNative && !isSubscribed && (
+          {/* Subscription Banner */}
+          {!isSubscribed && (
             <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
               {isTrialActive ? (
                 <div className="flex items-center justify-between">
@@ -443,12 +474,12 @@ export default function HomeClient() {
                       残り {trialDaysLeft} 日
                     </p>
                   </div>
-                  <button
-                    onClick={() => showPaywall()}
+                  <Link
+                    href="/pricing"
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
                   >
                     プランを見る
-                  </button>
+                  </Link>
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
@@ -460,12 +491,12 @@ export default function HomeClient() {
                       プランを選択して続けましょう
                     </p>
                   </div>
-                  <button
-                    onClick={() => showPaywall()}
+                  <Link
+                    href="/pricing"
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
                   >
                     購入する
-                  </button>
+                  </Link>
                 </div>
               )}
             </div>
@@ -477,8 +508,8 @@ export default function HomeClient() {
               データ取り込み
             </h3>
             <div className="grid grid-cols-3 gap-3">
-              {/* Receipt Scanning - App Only */}
-              {isNative && hasAccess ? (
+              {/* Receipt Scanning */}
+              {hasAccess ? (
                 <Link
                   href="/import/receipt"
                   className="flex flex-col items-center p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all"
@@ -489,29 +520,21 @@ export default function HomeClient() {
                   <span className="text-sm font-medium text-gray-800">レシート</span>
                   <span className="text-xs text-gray-500">撮影</span>
                 </Link>
-              ) : isNative ? (
-                <button
-                  onClick={() => showPaywall()}
-                  className="flex flex-col items-center p-4 bg-gray-50 rounded-xl border border-gray-200 opacity-60"
+              ) : (
+                <Link
+                  href="/pricing"
+                  className="flex flex-col items-center p-4 bg-gray-50 rounded-xl border border-gray-200 opacity-60 hover:opacity-80 transition-all"
                 >
                   <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center mb-2">
                     <Receipt className="w-6 h-6 text-gray-400" />
                   </div>
                   <span className="text-sm font-medium text-gray-500">レシート</span>
-                  <span className="text-xs text-gray-400">Pro限定</span>
-                </button>
-              ) : (
-                <div className="flex flex-col items-center p-4 bg-gray-50 rounded-xl border border-dashed border-gray-300">
-                  <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center mb-2">
-                    <Receipt className="w-6 h-6 text-gray-400" />
-                  </div>
-                  <span className="text-sm font-medium text-gray-500">レシート</span>
-                  <span className="text-xs text-blue-500">アプリ限定</span>
-                </div>
+                  <span className="text-xs text-blue-500">Pro限定</span>
+                </Link>
               )}
 
-              {/* Bank Statement Scanning - App Only */}
-              {isNative && hasAccess ? (
+              {/* Bank Statement Scanning */}
+              {hasAccess ? (
                 <Link
                   href="/import/statement"
                   className="flex flex-col items-center p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all"
@@ -522,25 +545,17 @@ export default function HomeClient() {
                   <span className="text-sm font-medium text-gray-800">銀行明細</span>
                   <span className="text-xs text-gray-500">撮影</span>
                 </Link>
-              ) : isNative ? (
-                <button
-                  onClick={() => showPaywall()}
-                  className="flex flex-col items-center p-4 bg-gray-50 rounded-xl border border-gray-200 opacity-60"
+              ) : (
+                <Link
+                  href="/pricing"
+                  className="flex flex-col items-center p-4 bg-gray-50 rounded-xl border border-gray-200 opacity-60 hover:opacity-80 transition-all"
                 >
                   <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center mb-2">
                     <Building2 className="w-6 h-6 text-gray-400" />
                   </div>
                   <span className="text-sm font-medium text-gray-500">銀行明細</span>
-                  <span className="text-xs text-gray-400">Pro限定</span>
-                </button>
-              ) : (
-                <div className="flex flex-col items-center p-4 bg-gray-50 rounded-xl border border-dashed border-gray-300">
-                  <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center mb-2">
-                    <Building2 className="w-6 h-6 text-gray-400" />
-                  </div>
-                  <span className="text-sm font-medium text-gray-500">銀行明細</span>
-                  <span className="text-xs text-blue-500">アプリ限定</span>
-                </div>
+                  <span className="text-xs text-blue-500">Pro限定</span>
+                </Link>
               )}
 
               {/* CSV Import - Free */}
@@ -571,14 +586,6 @@ export default function HomeClient() {
               <ChevronRight className="w-5 h-5 text-gray-400" />
             </Link>
 
-            {/* App Download CTA (Web only) */}
-            {!isNative && (
-              <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                <p className="text-xs text-blue-700 text-center">
-                  レシート・銀行明細の撮影はスマホアプリで利用できます
-                </p>
-              </div>
-            )}
           </div>
 
           {/* Main Actions */}
@@ -641,6 +648,121 @@ export default function HomeClient() {
                   <p className="text-sm text-gray-500">確定申告書の確認・出力</p>
                 </div>
                 <ChevronRight className="w-5 h-5 text-gray-400" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Year-end Checklist Banner */}
+          {new Date().getMonth() >= 10 && ( // 11月以降に表示
+            <Link
+              href="/checklist"
+              className="block mb-6 p-4 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl text-white"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <ClipboardCheck className="w-5 h-5" />
+                  <div>
+                    <p className="font-medium">
+                      年末・確定申告チェックリスト
+                    </p>
+                    <p className="text-sm text-indigo-100">
+                      準備状況を確認しましょう
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-white/60" />
+              </div>
+            </Link>
+          )}
+
+          {/* Inventory Warning */}
+          {inventoryWarning && (
+            <Link
+              href="/inventory"
+              className="block mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Package className="w-5 h-5 text-amber-600" />
+                  <div>
+                    <p className="font-medium text-amber-800">
+                      棚卸入力のお知らせ
+                    </p>
+                    <p className="text-sm text-amber-600">
+                      {inventoryWarning}
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-amber-400" />
+              </div>
+            </Link>
+          )}
+
+          {/* Business Management */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                ビジネス管理
+              </h3>
+              <span className="text-xs text-gray-400">必要に応じて</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Link
+                href="/loans"
+                className="flex flex-col items-center p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all"
+                aria-label="借入金管理"
+              >
+                <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-2">
+                  <Landmark className="w-6 h-6 text-indigo-600" />
+                </div>
+                <span className="text-sm font-medium text-gray-800">借入金</span>
+                <span className="text-xs text-gray-500">
+                  {hasLoans ? '管理中' : '借入がある方'}
+                </span>
+              </Link>
+
+              <Link
+                href="/inventory"
+                className="flex flex-col items-center p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all"
+                aria-label="棚卸資産管理"
+              >
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-2 ${
+                  inventoryComplete ? 'bg-green-100' : 'bg-gray-100'
+                }`}>
+                  <Package className={`w-6 h-6 ${
+                    inventoryComplete ? 'text-green-600' : 'text-gray-600'
+                  }`} />
+                </div>
+                <span className="text-sm font-medium text-gray-800">棚卸資産</span>
+                <span className={`text-xs ${
+                  inventoryComplete ? 'text-green-600' : 'text-gray-500'
+                }`}>
+                  {inventoryComplete ? '入力済み' : '在庫がある方'}
+                </span>
+              </Link>
+
+              <Link
+                href="/profile"
+                className="flex flex-col items-center p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all"
+                aria-label="事業設定"
+              >
+                <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mb-2">
+                  <Briefcase className="w-6 h-6 text-slate-600" />
+                </div>
+                <span className="text-sm font-medium text-gray-800">事業設定</span>
+                <span className="text-xs text-gray-500">按分・源泉徴収</span>
+              </Link>
+
+              <Link
+                href="/restaurant"
+                className="flex flex-col items-center p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all"
+                aria-label="飲食店向け機能"
+              >
+                <div className="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center mb-2">
+                  <Store className="w-6 h-6 text-rose-600" />
+                </div>
+                <span className="text-sm font-medium text-gray-800">飲食店</span>
+                <span className="text-xs text-gray-500">売上・給与・仕入</span>
               </Link>
             </div>
           </div>

@@ -158,6 +158,64 @@ export async function signInWithGoogle() {
     }
 }
 
+// LINEでログイン
+export async function signInWithLine() {
+    try {
+        const lineChannelId = process.env.NEXT_PUBLIC_LINE_CHANNEL_ID;
+        if (!lineChannelId) {
+            console.error('[Auth] LINE_CHANNEL_ID is not configured');
+            return { user: null, error: 'LINEログインは現在設定中です' };
+        }
+
+        // Web環境でのみ動作
+        if (typeof window === 'undefined') {
+            return { user: null, error: 'LINEログインはブラウザでのみ利用可能です' };
+        }
+
+        // LINE OAuth認証URLを構築
+        const redirectUri = `${window.location.origin}/api/auth/line/callback`;
+        const state = generateRandomState();
+
+        // stateをsessionStorageに保存（CSRF対策）
+        sessionStorage.setItem('line_oauth_state', state);
+
+        const authUrl = new URL('https://access.line.me/oauth2/v2.1/authorize');
+        authUrl.searchParams.set('response_type', 'code');
+        authUrl.searchParams.set('client_id', lineChannelId);
+        authUrl.searchParams.set('redirect_uri', redirectUri);
+        authUrl.searchParams.set('state', state);
+        authUrl.searchParams.set('scope', 'profile openid email');
+
+        // LINEの認証ページにリダイレクト
+        window.location.href = authUrl.toString();
+
+        // リダイレクトするのでこの関数は戻り値を返さない
+        return { user: null, error: null };
+    } catch (error: any) {
+        console.error('[Auth] LINE sign-in error:', error);
+        return { user: null, error: 'LINEログインに失敗しました' };
+    }
+}
+
+// LINEコールバック後のFirebase認証
+export async function signInWithLineToken(customToken: string) {
+    try {
+        const { signInWithCustomToken } = await import('firebase/auth');
+        const result = await signInWithCustomToken(auth, customToken);
+        return { user: result.user, error: null };
+    } catch (error: any) {
+        console.error('[Auth] LINE token sign-in error:', error);
+        return { user: null, error: 'LINEログインの完了に失敗しました' };
+    }
+}
+
+// ランダムなstate値を生成（CSRF対策用）
+function generateRandomState(): string {
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
 // Appleでログイン
 export async function signInWithApple() {
     try {

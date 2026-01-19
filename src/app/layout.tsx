@@ -4,6 +4,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getLocale } from 'next-intl/server';
+import AppWrapper from "@/components/AppWrapper";
 
 export const metadata: Metadata = {
     title: {
@@ -79,7 +80,9 @@ export default async function RootLayout({
                 <NextIntlClientProvider messages={messages}>
                     <AuthProvider>
                         <SubscriptionProvider>
-                            {children}
+                            <AppWrapper>
+                                {children}
+                            </AppWrapper>
                         </SubscriptionProvider>
                     </AuthProvider>
                 </NextIntlClientProvider>
